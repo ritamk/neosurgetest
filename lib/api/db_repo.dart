@@ -22,62 +22,57 @@ class DatabaseRepository {
     }
   }
 
-  Future<MyUserModel?> getUserData(String uid) async {
+  Stream<MyUserModel?> getUserData(String uid) {
     try {
-      final doc = await _userCollection.doc(uid).get();
-      final dynamic data = doc.data();
+      return _userCollection.doc(uid).snapshots().map((event) {
+        final dynamic data = event.data();
 
-      if (data != null) {
-        // List<GoalModel> goals = [];
-        // List<ExpenseModel> expenses = [];
-        // for (dynamic element in data['goals']) {
-        //   goals.add(GoalModel.fromMap(element));
-        // }
-        // for (dynamic element in data['expenses']) {
-        //   expenses.add(ExpenseModel.fromMap(element));
-        // }
-        return MyUserModel.fromMap(data);
-      } else {
-        return null;
-      }
+        if (data != null) {
+          return MyUserModel.fromMap(data);
+        } else {
+          return null;
+        }
+      });
     } catch (e) {
       throw "Something went wrong ($e)";
     }
   }
 
-  Future<List<GoalModel>?> getGoals(String uid) async {
+  Stream<List<ExpenseModel>?> getExpenses(String uid) {
     try {
-      final doc = await _userCollection.doc(uid).get();
-      final dynamic data = doc.data();
+      return _userCollection.doc(uid).snapshots().map((event) {
+        final dynamic data = event.data();
 
-      if (data != null) {
-        List<GoalModel> goals = [];
-        for (dynamic element in data['goals']) {
-          goals.add(GoalModel.fromMap(element));
+        if (data != null) {
+          List<ExpenseModel> expenses = [];
+          for (dynamic element in data['expenses']) {
+            expenses.add(ExpenseModel.fromMap(element));
+          }
+          return expenses;
+        } else {
+          return null;
         }
-        return goals;
-      } else {
-        return null;
-      }
+      });
     } catch (e) {
       throw "Something went wrong ($e)";
     }
   }
 
-  Future<List<ExpenseModel>?> getExpenses(String uid) async {
+  Stream<List<GoalModel>?> getGoals(String uid) {
     try {
-      final doc = await _userCollection.doc(uid).get();
-      final dynamic data = doc.data();
+      return _userCollection.doc(uid).snapshots().map((event) {
+        final dynamic data = event.data();
 
-      if (data != null) {
-        List<ExpenseModel> expenses = [];
-        for (dynamic element in data['goals']) {
-          expenses.add(ExpenseModel.fromMap(element));
+        if (data != null) {
+          List<GoalModel> goals = [];
+          for (dynamic element in data['goals']) {
+            goals.add(GoalModel.fromMap(element));
+          }
+          return goals;
+        } else {
+          return null;
         }
-        return expenses;
-      } else {
-        return null;
-      }
+      });
     } catch (e) {
       throw "Something went wrong ($e)";
     }
@@ -104,6 +99,39 @@ class DatabaseRepository {
     try {
       return await _userCollection.doc(uid).update({
         'goals': FieldValue.arrayUnion([
+          GoalModel(
+            planName: goal.planName,
+            targetDate: goal.targetDate,
+            targetAmount: goal.targetAmount,
+          ).toMap()
+        ])
+      });
+    } catch (e) {
+      throw "Something went wrong ($e)";
+    }
+  }
+
+  Future<void> removeExpense(String uid, ExpenseModel expense) async {
+    try {
+      return await _userCollection.doc(uid).update({
+        'expenses': FieldValue.arrayRemove([
+          ExpenseModel(
+            txnName: expense.txnName,
+            isExpense: expense.isExpense,
+            txnAmount: expense.txnAmount,
+            txnDate: expense.txnDate,
+          ).toMap()
+        ])
+      });
+    } catch (e) {
+      throw "Something went wrong ($e)";
+    }
+  }
+
+  Future<void> removeGoal(String uid, GoalModel goal) async {
+    try {
+      return await _userCollection.doc(uid).update({
+        'goals': FieldValue.arrayRemove([
           GoalModel(
             planName: goal.planName,
             targetDate: goal.targetDate,
