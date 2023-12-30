@@ -5,8 +5,8 @@ import 'package:neosurgetest/models/user_model.dart';
 class AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  Stream<User?> getUser() async* {
-    yield* _firebaseAuth.authStateChanges();
+  Stream<User?> get user {
+    return _firebaseAuth.authStateChanges().map((event) => event);
   }
 
   Future<String?> signInWithMailPass(String mail, String pass) async {

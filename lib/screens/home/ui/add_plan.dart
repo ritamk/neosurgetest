@@ -74,8 +74,8 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
 
                         final DateTime? date = await showDatePicker(
                           context: context,
-                          firstDate: DateTime(now.year, now.month - 1),
-                          lastDate: now,
+                          firstDate: now,
+                          lastDate: DateTime(now.year + 1, now.month),
                         );
 
                         date != null ? setState(() => _date = date) : null;

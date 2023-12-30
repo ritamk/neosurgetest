@@ -15,6 +15,8 @@ class PlanContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String formattedPlanCost = formatMoney(planCost);
+    final int completed = 80;
+    final int left = 18;
 
     return Container(
       decoration: BoxDecoration(
@@ -22,24 +24,34 @@ class PlanContainer extends StatelessWidget {
         color: Colors.black.withOpacity(0.05),
       ),
       height: 100,
-      width: 100,
       padding: const EdgeInsets.all(12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Text(planName,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold)),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Text(
+              planName,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
+          const SizedBox(height: 8),
           Expanded(
-              child: Align(
-                  alignment: Alignment.bottomLeft,
-                  child:
-                      SingleChildScrollView(child: Text(formattedPlanCost)))),
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(formattedPlanCost),
+                    Text('$completed% achieved'),
+                    Text('$left days left'),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
