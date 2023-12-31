@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:neosurgetest/api/db_repo.dart';
-import 'package:neosurgetest/models/user_model.dart';
+import 'package:neosurgetest/feature/home/domain/repo/db_repo.dart';
+import 'package:neosurgetest/feature/auth/data/models/user_model.dart';
 
 class AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;

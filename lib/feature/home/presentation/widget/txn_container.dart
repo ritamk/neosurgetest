@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:neosurgetest/models/expense_model.dart';
-import 'package:neosurgetest/screens/home/widget/txn_bottom_sheet.dart';
+import 'package:neosurgetest/feature/home/data/model/expense_model.dart';
+import 'package:neosurgetest/feature/home/presentation/widget/txn_bottom_sheet.dart';
 import 'package:neosurgetest/utils/money_formatter.dart';
 
 class TxnContainer extends StatelessWidget {

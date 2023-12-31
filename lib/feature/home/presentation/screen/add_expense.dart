@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:neosurgetest/feature/home/data/model/expense_model.dart';
 import 'package:neosurgetest/utils/snackbar.dart';
 import 'package:neosurgetest/utils/text_widget.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({super.key});
+  const AddExpenseScreen({super.key, this.expense});
+  final ExpenseModel? expense;
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
@@ -23,14 +25,25 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   bool isExpense = true;
 
   @override
+  void initState() {
+    if (widget.expense != null) {
+      _nameController.text = widget.expense!.txnName;
+      _amountController.text = widget.expense!.txnAmount.toString();
+      _date = widget.expense!.txnDate;
+      isExpense = widget.expense!.isExpense;
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
-            'New transaction',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Text(
+            widget.expense != null ? 'Edit transaction' : 'New transaction',
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           bottom: TabBar(
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -103,7 +116,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
                           final DateTime? date = await showDatePicker(
                             context: context,
-                            firstDate: DateTime(now.year, now.month - 1),
+                            firstDate: now.subtract(const Duration(days: 30)),
                             lastDate: now,
                           );
 

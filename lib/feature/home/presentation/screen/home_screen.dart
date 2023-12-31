@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:neosurgetest/models/expense_model.dart';
-import 'package:neosurgetest/models/plan_model.dart';
-import 'package:neosurgetest/screens/auth/ui/sign_in_screen.dart';
-import 'package:neosurgetest/screens/home/ui/add_expense.dart';
-import 'package:neosurgetest/screens/home/ui/add_plan.dart';
-import 'package:neosurgetest/screens/home/widget/balance_container.dart';
-import 'package:neosurgetest/screens/home/widget/info_dialog.dart';
-import 'package:neosurgetest/screens/home/widget/plan_container.dart';
-import 'package:neosurgetest/screens/home/widget/txn_container.dart';
+import 'package:neosurgetest/feature/auth/presentation/screen/sign_up_screen.dart';
+import 'package:neosurgetest/feature/home/data/model/expense_model.dart';
+import 'package:neosurgetest/feature/home/data/model/plan_model.dart';
+import 'package:neosurgetest/feature/home/presentation/screen/add_expense.dart';
+import 'package:neosurgetest/feature/home/presentation/screen/add_plan.dart';
+import 'package:neosurgetest/feature/home/presentation/widget/balance_container.dart';
+import 'package:neosurgetest/feature/home/presentation/widget/info_dialog.dart';
+import 'package:neosurgetest/feature/home/presentation/widget/plan_container.dart';
+import 'package:neosurgetest/feature/home/presentation/widget/txn_container.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             onPressed: () => Navigator.pushAndRemoveUntil(
               context,
-              CupertinoPageRoute(builder: (ctx) => const SignInScreen()),
+              CupertinoPageRoute(builder: (ctx) => const SignUpScreen()),
               (route) => false,
             ),
             icon: const Icon(

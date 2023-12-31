@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:neosurgetest/models/plan_model.dart';
-import 'package:neosurgetest/screens/home/widget/plan_bottom_sheet.dart';
+import 'package:neosurgetest/feature/home/data/model/plan_model.dart';
+import 'package:neosurgetest/feature/home/presentation/widget/plan_bottom_sheet.dart';
 import 'package:neosurgetest/utils/money_formatter.dart';
 
 class PlanContainer extends StatelessWidget {

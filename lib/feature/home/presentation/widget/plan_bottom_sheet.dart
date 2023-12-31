@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:neosurgetest/models/plan_model.dart';
+import 'package:neosurgetest/feature/home/data/model/plan_model.dart';
+import 'package:neosurgetest/feature/home/presentation/screen/add_plan.dart';
 import 'package:neosurgetest/utils/money_formatter.dart';
 
 Future<void> planBottomSheet(
@@ -29,6 +30,17 @@ Future<void> planBottomSheet(
                 child: Text(goal.planName,
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (ctx) => AddPlanScreen(goal: goal)));
+                },
+                icon: const Icon(Icons.edit),
+                visualDensity: VisualDensity.compact,
               ),
               IconButton(
                 onPressed: () {

@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:neosurgetest/models/expense_model.dart';
+import 'package:neosurgetest/feature/home/data/model/expense_model.dart';
+import 'package:neosurgetest/feature/home/presentation/screen/add_expense.dart';
 
 Future<void> txnBottomSheet(BuildContext context, ExpenseModel expense) async {
   await showModalBottomSheet(
@@ -16,6 +17,18 @@ Future<void> txnBottomSheet(BuildContext context, ExpenseModel expense) async {
                 child: Text(expense.txnName,
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (ctx) =>
+                              AddExpenseScreen(expense: expense)));
+                },
+                icon: const Icon(Icons.edit),
+                visualDensity: VisualDensity.compact,
               ),
               IconButton(
                 onPressed: () {

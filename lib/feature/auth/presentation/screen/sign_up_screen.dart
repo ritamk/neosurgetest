@@ -1,19 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:neosurgetest/screens/auth/ui/sign_up_screen.dart';
-import 'package:neosurgetest/screens/home/ui/home_screen.dart';
+import 'package:neosurgetest/feature/auth/presentation/screen/sign_in_screen.dart';
+import 'package:neosurgetest/feature/home/presentation/screen/home_screen.dart';
 import 'package:neosurgetest/utils/button.dart';
 import 'package:neosurgetest/utils/text_widget.dart';
 
-class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final FocusNode _nameFocus = FocusNode();
+  final TextEditingController _nameController = TextEditingController();
   final FocusNode _passFocus = FocusNode();
   final TextEditingController _passController = TextEditingController();
   final FocusNode _mailFocus = FocusNode();
@@ -25,7 +27,7 @@ class _SignInScreenState extends State<SignInScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Sign In',
+          'Sign Up',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
@@ -39,6 +41,22 @@ class _SignInScreenState extends State<SignInScreen> {
                   key: _formKey,
                   child: Column(
                     children: [
+                      CustomTextField(
+                        label: 'Name',
+                        focus: _nameFocus,
+                        controller: _nameController,
+                        keyboardType: TextInputType.name,
+                        validation: (val) {
+                          if (val!.isEmpty) {
+                            return "Please enter your name";
+                          } else if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(val)) {
+                            return "Please enter a valid name";
+                          }
+                          return null;
+                        },
+                        inputAction: TextInputAction.next,
+                      ),
+                      const SizedBox(height: 10),
                       CustomTextField(
                         label: 'Email',
                         focus: _mailFocus,
@@ -82,15 +100,15 @@ class _SignInScreenState extends State<SignInScreen> {
                       CustomButton(
                         onTap: () {
                           if (_formKey.currentState!.validate()) {
-                            // Navigator.pushAndRemoveUntil(
-                            //   context,
-                            //   CupertinoPageRoute(
-                            //       builder: (ctx) => const HomeScreen()),
-                            //   (route) => false,
-                            // );
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (ctx) => const HomeScreen()),
+                              (route) => false,
+                            );
                           }
                         },
-                        label: 'Sign in',
+                        label: 'Sign up',
                       ),
                       const SizedBox(height: 20),
                     ],
@@ -102,15 +120,15 @@ class _SignInScreenState extends State<SignInScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('Don\'t have an account?'),
+              const Text('Already have an account?'),
               TextButton(
                 onPressed: () => Navigator.pushAndRemoveUntil(
                   context,
-                  CupertinoPageRoute(builder: (ctx) => const SignUpScreen()),
+                  CupertinoPageRoute(builder: (ctx) => const SignInScreen()),
                   (route) => false,
                 ),
                 child: const Text(
-                  'Sign up',
+                  'Sign in',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
@@ -124,6 +142,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
+    _nameFocus.dispose();
     _mailController.dispose();
     _mailFocus.dispose();
     _passController.dispose();

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:neosurgetest/feature/home/data/model/plan_model.dart';
 import 'package:neosurgetest/utils/snackbar.dart';
 import 'package:neosurgetest/utils/text_widget.dart';
 
 class AddPlanScreen extends StatefulWidget {
-  const AddPlanScreen({super.key});
+  const AddPlanScreen({super.key, this.goal});
+  final GoalModel? goal;
 
   @override
   State<AddPlanScreen> createState() => _AddPlanScreenState();
@@ -20,12 +22,22 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
   DateTime? _date;
 
   @override
+  void initState() {
+    if (widget.goal != null) {
+      _nameController.text = widget.goal!.planName;
+      _amountController.text = widget.goal!.targetAmount.toString();
+      _date = widget.goal!.targetDate;
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'New goal',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          widget.goal != null ? 'Edit goal' : 'New goal',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
       body: Column(
@@ -74,8 +86,8 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
 
                         final DateTime? date = await showDatePicker(
                           context: context,
-                          firstDate: now,
-                          lastDate: DateTime(now.year + 1, now.month),
+                          firstDate: now.add(const Duration(days: 1)),
+                          lastDate: now.add(const Duration(days: 365)),
                         );
 
                         date != null ? setState(() => _date = date) : null;

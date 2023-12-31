@@ -1,9 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:neosurgetest/feature/home/data/model/expense_model.dart';
+import 'package:neosurgetest/feature/home/data/model/plan_model.dart';
 
-import 'package:neosurgetest/models/expense_model.dart';
-import 'package:neosurgetest/models/plan_model.dart';
-import 'package:neosurgetest/models/user_model.dart';
+import 'package:neosurgetest/feature/auth/data/models/user_model.dart';
 import 'package:neosurgetest/utils/shared_pref.dart';
 
 class DatabaseRepository {
@@ -148,6 +148,59 @@ class DatabaseRepository {
     try {
       return await _userCollection.doc(LocalSharedPref.getUid()).update({
         'goals': FieldValue.arrayRemove([
+          GoalModel(
+            planName: goal.planName,
+            targetDate: goal.targetDate,
+            targetAmount: goal.targetAmount,
+          ).toMap()
+        ])
+      });
+    } catch (e) {
+      throw "Something went wrong ($e)";
+    }
+  }
+
+  Future<void> updateExpense(
+      ExpenseModel oldExpense, ExpenseModel expense) async {
+    try {
+      await _userCollection.doc(LocalSharedPref.getUid()).update({
+        'expenses': FieldValue.arrayRemove([
+          ExpenseModel(
+            txnName: oldExpense.txnName,
+            isExpense: oldExpense.isExpense,
+            txnAmount: oldExpense.txnAmount,
+            txnDate: oldExpense.txnDate,
+          ).toMap()
+        ])
+      });
+      return await _userCollection.doc(LocalSharedPref.getUid()).update({
+        'expenses': FieldValue.arrayUnion([
+          ExpenseModel(
+            txnName: expense.txnName,
+            isExpense: expense.isExpense,
+            txnAmount: expense.txnAmount,
+            txnDate: expense.txnDate,
+          ).toMap()
+        ])
+      });
+    } catch (e) {
+      throw "Something went wrong ($e)";
+    }
+  }
+
+  Future<void> updateGoal(GoalModel oldGoal, GoalModel goal) async {
+    try {
+      await _userCollection.doc(LocalSharedPref.getUid()).update({
+        'goals': FieldValue.arrayRemove([
+          GoalModel(
+            planName: oldGoal.planName,
+            targetDate: oldGoal.targetDate,
+            targetAmount: oldGoal.targetAmount,
+          ).toMap()
+        ])
+      });
+      return await _userCollection.doc(LocalSharedPref.getUid()).update({
+        'goals': FieldValue.arrayUnion([
           GoalModel(
             planName: goal.planName,
             targetDate: goal.targetDate,
