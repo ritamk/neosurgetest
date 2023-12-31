@@ -82,12 +82,12 @@ class _SignInScreenState extends State<SignInScreen> {
                       CustomButton(
                         onTap: () {
                           if (_formKey.currentState!.validate()) {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              CupertinoPageRoute(
-                                  builder: (ctx) => const HomeScreen()),
-                              (route) => false,
-                            );
+                            // Navigator.pushAndRemoveUntil(
+                            //   context,
+                            //   CupertinoPageRoute(
+                            //       builder: (ctx) => const HomeScreen()),
+                            //   (route) => false,
+                            // );
                           }
                         },
                         label: 'Sign in',

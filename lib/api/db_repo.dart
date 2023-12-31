@@ -1,15 +1,22 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:neosurgetest/models/expense_model.dart';
 import 'package:neosurgetest/models/plan_model.dart';
 import 'package:neosurgetest/models/user_model.dart';
+import 'package:neosurgetest/utils/shared_pref.dart';
 
 class DatabaseRepository {
+  // DatabaseRepository({this.uid});
+
+  // final String? uid;
+
   final CollectionReference _userCollection =
       FirebaseFirestore.instance.collection('Users');
 
   Future<bool> setUserData(MyUserModel user) async {
     try {
-      await _userCollection.doc(user.uid).set({
+      await _userCollection.doc(LocalSharedPref.getUid()).set({
         "uid": user.uid,
         "name": user.name,
         "email": null,
@@ -22,9 +29,12 @@ class DatabaseRepository {
     }
   }
 
-  Stream<MyUserModel?> getUserData(String uid) {
+  Stream<MyUserModel?> getUserData() {
     try {
-      return _userCollection.doc(uid).snapshots().map((event) {
+      return _userCollection
+          .doc(LocalSharedPref.getUid())
+          .snapshots()
+          .map((event) {
         final dynamic data = event.data();
 
         if (data != null) {
@@ -38,9 +48,12 @@ class DatabaseRepository {
     }
   }
 
-  Stream<List<ExpenseModel>?> getExpenses(String uid) {
+  Stream<List<ExpenseModel>?> getExpenses() {
     try {
-      return _userCollection.doc(uid).snapshots().map((event) {
+      return _userCollection
+          .doc(LocalSharedPref.getUid())
+          .snapshots()
+          .map((event) {
         final dynamic data = event.data();
 
         if (data != null) {
@@ -58,9 +71,12 @@ class DatabaseRepository {
     }
   }
 
-  Stream<List<GoalModel>?> getGoals(String uid) {
+  Stream<List<GoalModel>?> getGoals() {
     try {
-      return _userCollection.doc(uid).snapshots().map((event) {
+      return _userCollection
+          .doc(LocalSharedPref.getUid())
+          .snapshots()
+          .map((event) {
         final dynamic data = event.data();
 
         if (data != null) {
@@ -78,9 +94,9 @@ class DatabaseRepository {
     }
   }
 
-  Future<void> setExpense(String uid, ExpenseModel expense) async {
+  Future<void> setExpense(ExpenseModel expense) async {
     try {
-      return await _userCollection.doc(uid).update({
+      return await _userCollection.doc(LocalSharedPref.getUid()).update({
         'expenses': FieldValue.arrayUnion([
           ExpenseModel(
             txnName: expense.txnName,
@@ -95,9 +111,9 @@ class DatabaseRepository {
     }
   }
 
-  Future<void> setGoal(String uid, GoalModel goal) async {
+  Future<void> setGoal(GoalModel goal) async {
     try {
-      return await _userCollection.doc(uid).update({
+      return await _userCollection.doc(LocalSharedPref.getUid()).update({
         'goals': FieldValue.arrayUnion([
           GoalModel(
             planName: goal.planName,
@@ -111,9 +127,9 @@ class DatabaseRepository {
     }
   }
 
-  Future<void> removeExpense(String uid, ExpenseModel expense) async {
+  Future<void> removeExpense(ExpenseModel expense) async {
     try {
-      return await _userCollection.doc(uid).update({
+      return await _userCollection.doc(LocalSharedPref.getUid()).update({
         'expenses': FieldValue.arrayRemove([
           ExpenseModel(
             txnName: expense.txnName,
@@ -128,9 +144,9 @@ class DatabaseRepository {
     }
   }
 
-  Future<void> removeGoal(String uid, GoalModel goal) async {
+  Future<void> removeGoal(GoalModel goal) async {
     try {
-      return await _userCollection.doc(uid).update({
+      return await _userCollection.doc(LocalSharedPref.getUid()).update({
         'goals': FieldValue.arrayRemove([
           GoalModel(
             planName: goal.planName,
