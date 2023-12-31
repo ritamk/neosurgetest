@@ -7,9 +7,10 @@ import 'package:neosurgetest/feature/home/presentation/screen/add_expense.dart';
 Future<void> txnBottomSheet(BuildContext context, ExpenseModel expense) async {
   await showModalBottomSheet(
     context: context,
-    builder: (ctx) => Padding(
+    builder: (ctx) => Container(
       padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -97,7 +98,7 @@ Future<void> txnBottomSheet(BuildContext context, ExpenseModel expense) async {
               ],
             ),
           ),
-          const SizedBox(height: 50),
+          const SizedBox(height: 38),
         ],
       ),
     ),

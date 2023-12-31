@@ -20,9 +20,10 @@ Future<void> planBottomSheet(
 
   await showModalBottomSheet(
     context: context,
-    builder: (ctx) => Padding(
+    builder: (ctx) => Container(
       padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -141,7 +142,7 @@ Future<void> planBottomSheet(
               ],
             ),
           ),
-          const SizedBox(height: 50),
+          const SizedBox(height: 38),
         ],
       ),
     ),

@@ -15,8 +15,6 @@ class PlanContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String formattedPlanCost = formatMoney(goal.targetAmount);
-    const int completed = 80;
-    const int left = 18;
 
     return InkWell(
       onTap: () async => await planBottomSheet(context, goal, balance),
@@ -26,6 +24,7 @@ class PlanContainer extends StatelessWidget {
           color: Colors.black.withOpacity(0.05),
         ),
         height: 100,
+        width: 100,
         padding: const EdgeInsets.all(12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -44,14 +43,8 @@ class PlanContainer extends StatelessWidget {
               child: Align(
                 alignment: Alignment.bottomLeft,
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(formattedPlanCost),
-                      const Text('$completed% achieved'),
-                      const Text('$left days left'),
-                    ],
-                  ),
+                  scrollDirection: Axis.horizontal,
+                  child: Text(formattedPlanCost),
                 ),
               ),
             ),
