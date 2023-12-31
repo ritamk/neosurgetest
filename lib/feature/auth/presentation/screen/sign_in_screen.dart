@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:neosurgetest/feature/auth/presentation/screen/sign_up_screen.dart';
-import 'package:neosurgetest/feature/home/presentation/screen/home_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:neosurgetest/feature/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
 import 'package:neosurgetest/utils/button.dart';
+import 'package:neosurgetest/utils/snackbar.dart';
 import 'package:neosurgetest/utils/text_widget.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -20,16 +21,24 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _mailController = TextEditingController();
   bool _hidePass = true;
 
+  bool _signingIn = false;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Sign In',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Column(
+    return BlocListener<SignInBloc, SignInState>(
+      listener: (context, state) {
+        switch (state) {
+          case SignInSuccess():
+            setState(() => _signingIn = false);
+          case SignInProcessing():
+            setState(() => _signingIn = true);
+          case SignInFailure():
+            setState(() => _signingIn = false);
+            customSnackbar(context, content: 'Sign in failed', isError: true);
+          default:
+        }
+      },
+      child: Column(
         children: [
           Expanded(
             child: Center(
@@ -82,15 +91,17 @@ class _SignInScreenState extends State<SignInScreen> {
                       CustomButton(
                         onTap: () {
                           if (_formKey.currentState!.validate()) {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              CupertinoPageRoute(
-                                  builder: (ctx) => const HomeScreen()),
-                              (route) => false,
-                            );
+                            context.read<SignInBloc>().add(SigningIn(
+                                  mail: _mailController.text.trim(),
+                                  pass: _passController.text.trim(),
+                                ));
                           }
                         },
-                        label: 'Sign in',
+                        label: _signingIn ? null : 'Sign in',
+                        child: _signingIn
+                            ? const CupertinoActivityIndicator(
+                                color: Colors.white)
+                            : null,
                       ),
                       const SizedBox(height: 20),
                     ],
@@ -98,23 +109,6 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
               ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Don\'t have an account?'),
-              TextButton(
-                onPressed: () => Navigator.pushAndRemoveUntil(
-                  context,
-                  CupertinoPageRoute(builder: (ctx) => const SignUpScreen()),
-                  (route) => false,
-                ),
-                child: const Text(
-                  'Sign up',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
-            ],
           ),
           const SizedBox(height: 20),
         ],

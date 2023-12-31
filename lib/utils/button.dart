@@ -6,13 +6,11 @@ class CustomButton extends StatelessWidget {
     this.enabled = true,
     this.label,
     this.child,
-    this.textButton = false,
     this.onTap,
   });
   final bool enabled;
   final Widget? child;
   final String? label;
-  final bool textButton;
   final Function()? onTap;
 
   @override
@@ -35,15 +33,15 @@ class CustomButton extends StatelessWidget {
         height: 50,
         width: double.maxFinite,
         child: Center(
-          child: textButton
-              ? child
-              : Text(
+          child: label != null
+              ? Text(
                   label!,
                   style: const TextStyle(
                       fontSize: 18,
                       color: Colors.white,
                       fontWeight: FontWeight.bold),
-                ),
+                )
+              : child,
         ),
       ),
     );

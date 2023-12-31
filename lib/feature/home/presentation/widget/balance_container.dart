@@ -12,7 +12,7 @@ class MyBalanceContainer extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: net < 0
+            colors: net <= 0
                 ? [
                     Colors.red.shade400,
                     Colors.red.shade600,
@@ -46,8 +46,10 @@ class MyBalanceContainer extends StatelessWidget {
             ),
           ),
           Icon(
-            net < 0 ? Icons.thumb_down_alt_rounded : Icons.thumb_up_alt_rounded,
-            color: net < 0 ? Colors.red.shade300 : Colors.green.shade300,
+            net <= 0
+                ? Icons.thumb_down_alt_rounded
+                : Icons.thumb_up_alt_rounded,
+            color: net <= 0 ? Colors.red.shade300 : Colors.green.shade300,
             size: 48,
           ),
         ],

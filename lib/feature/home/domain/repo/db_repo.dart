@@ -1,102 +1,75 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:neosurgetest/feature/home/data/model/dashboard_model.dart';
 import 'package:neosurgetest/feature/home/data/model/expense_model.dart';
 import 'package:neosurgetest/feature/home/data/model/plan_model.dart';
-
 import 'package:neosurgetest/feature/auth/data/models/user_model.dart';
 import 'package:neosurgetest/utils/shared_pref.dart';
 
 class DatabaseRepository {
-  // DatabaseRepository({this.uid});
-
-  // final String? uid;
+  final String? uid = LocalSharedPref.getUid();
 
   final CollectionReference _userCollection =
       FirebaseFirestore.instance.collection('Users');
 
   Future<bool> setUserData(MyUserModel user) async {
     try {
-      await _userCollection.doc(LocalSharedPref.getUid()).set({
-        "uid": user.uid,
-        "name": user.name,
-        "email": null,
-        "goals": [],
-        "expenses": [],
-      }).onError((error, stackTrace) => false);
+      final Map<String, dynamic> data = user.toMap();
+      data.addAll({
+        'expenses': [],
+        'goals': [],
+      });
+      await _userCollection.doc(uid).set(data);
       return true;
     } catch (e) {
       throw "Something went wrong ($e)";
     }
   }
 
-  Stream<MyUserModel?> getUserData() {
+  Stream<DashboardModel?> getUserData() {
     try {
-      return _userCollection
-          .doc(LocalSharedPref.getUid())
-          .snapshots()
-          .map((event) {
-        final dynamic data = event.data();
-
-        if (data != null) {
-          return MyUserModel.fromMap(data);
-        } else {
-          return null;
-        }
-      });
-    } catch (e) {
-      throw "Something went wrong ($e)";
-    }
-  }
-
-  Stream<List<ExpenseModel>?> getExpenses() {
-    try {
-      return _userCollection
-          .doc(LocalSharedPref.getUid())
-          .snapshots()
-          .map((event) {
+      return _userCollection.doc(uid).snapshots().map((event) {
         final dynamic data = event.data();
 
         if (data != null) {
           List<ExpenseModel> expenses = [];
+          List<GoalModel> goals = [];
           for (dynamic element in data['expenses']) {
             expenses.add(ExpenseModel.fromMap(element));
           }
-          return expenses;
-        } else {
-          return null;
-        }
-      });
-    } catch (e) {
-      throw "Something went wrong ($e)";
-    }
-  }
-
-  Stream<List<GoalModel>?> getGoals() {
-    try {
-      return _userCollection
-          .doc(LocalSharedPref.getUid())
-          .snapshots()
-          .map((event) {
-        final dynamic data = event.data();
-
-        if (data != null) {
-          List<GoalModel> goals = [];
           for (dynamic element in data['goals']) {
             goals.add(GoalModel.fromMap(element));
           }
-          return goals;
+          expenses.sort((a, b) => a.txnDate.compareTo(b.txnDate));
+          goals.sort((a, b) => a.targetDate.compareTo(b.targetDate));
+
+          return DashboardModel(
+            user: MyUserModel.fromMap(data),
+            expenses: expenses,
+            goals: goals,
+          );
         } else {
           return null;
         }
       });
     } catch (e) {
-      throw "Something went wrong ($e)";
+      rethrow;
     }
   }
 
   Future<void> setExpense(ExpenseModel expense) async {
     try {
-      return await _userCollection.doc(LocalSharedPref.getUid()).update({
+      final DocumentSnapshot doc = await _userCollection.doc(uid).get();
+      final dynamic data = doc.data();
+      double balance = double.parse(data['balance']);
+      expense.isExpense
+          ? balance -= expense.txnAmount
+          : balance -= expense.txnAmount;
+
+      return await _userCollection.doc(uid).update({
+        'balance': balance,
         'expenses': FieldValue.arrayUnion([
           ExpenseModel(
             txnName: expense.txnName,
@@ -107,13 +80,13 @@ class DatabaseRepository {
         ])
       });
     } catch (e) {
-      throw "Something went wrong ($e)";
+      rethrow;
     }
   }
 
   Future<void> setGoal(GoalModel goal) async {
     try {
-      return await _userCollection.doc(LocalSharedPref.getUid()).update({
+      return await _userCollection.doc(uid).update({
         'goals': FieldValue.arrayUnion([
           GoalModel(
             planName: goal.planName,
@@ -123,13 +96,21 @@ class DatabaseRepository {
         ])
       });
     } catch (e) {
-      throw "Something went wrong ($e)";
+      rethrow;
     }
   }
 
   Future<void> removeExpense(ExpenseModel expense) async {
     try {
-      return await _userCollection.doc(LocalSharedPref.getUid()).update({
+      final DocumentSnapshot doc = await _userCollection.doc(uid).get();
+      final dynamic data = doc.data();
+      double balance = double.parse(data['balance']);
+      expense.isExpense
+          ? balance -= expense.txnAmount
+          : balance -= expense.txnAmount;
+
+      return await _userCollection.doc(uid).update({
+        'balance': balance,
         'expenses': FieldValue.arrayRemove([
           ExpenseModel(
             txnName: expense.txnName,
@@ -140,13 +121,13 @@ class DatabaseRepository {
         ])
       });
     } catch (e) {
-      throw "Something went wrong ($e)";
+      rethrow;
     }
   }
 
   Future<void> removeGoal(GoalModel goal) async {
     try {
-      return await _userCollection.doc(LocalSharedPref.getUid()).update({
+      return await _userCollection.doc(uid).update({
         'goals': FieldValue.arrayRemove([
           GoalModel(
             planName: goal.planName,
@@ -156,14 +137,24 @@ class DatabaseRepository {
         ])
       });
     } catch (e) {
-      throw "Something went wrong ($e)";
+      rethrow;
     }
   }
 
   Future<void> updateExpense(
       ExpenseModel oldExpense, ExpenseModel expense) async {
     try {
-      await _userCollection.doc(LocalSharedPref.getUid()).update({
+      final DocumentSnapshot doc = await _userCollection.doc(uid).get();
+      final dynamic data = doc.data();
+      double balance = double.parse(data['balance']);
+      oldExpense.isExpense
+          ? balance += oldExpense.txnAmount
+          : balance -= oldExpense.txnAmount;
+      expense.isExpense
+          ? balance -= expense.txnAmount
+          : balance += expense.txnAmount;
+
+      await _userCollection.doc(uid).update({
         'expenses': FieldValue.arrayRemove([
           ExpenseModel(
             txnName: oldExpense.txnName,
@@ -173,7 +164,8 @@ class DatabaseRepository {
           ).toMap()
         ])
       });
-      return await _userCollection.doc(LocalSharedPref.getUid()).update({
+      return await _userCollection.doc(uid).update({
+        'balance': balance,
         'expenses': FieldValue.arrayUnion([
           ExpenseModel(
             txnName: expense.txnName,
@@ -184,13 +176,13 @@ class DatabaseRepository {
         ])
       });
     } catch (e) {
-      throw "Something went wrong ($e)";
+      rethrow;
     }
   }
 
   Future<void> updateGoal(GoalModel oldGoal, GoalModel goal) async {
     try {
-      await _userCollection.doc(LocalSharedPref.getUid()).update({
+      await _userCollection.doc(uid).update({
         'goals': FieldValue.arrayRemove([
           GoalModel(
             planName: oldGoal.planName,
@@ -199,7 +191,7 @@ class DatabaseRepository {
           ).toMap()
         ])
       });
-      return await _userCollection.doc(LocalSharedPref.getUid()).update({
+      return await _userCollection.doc(uid).update({
         'goals': FieldValue.arrayUnion([
           GoalModel(
             planName: goal.planName,
@@ -209,7 +201,7 @@ class DatabaseRepository {
         ])
       });
     } catch (e) {
-      throw "Something went wrong ($e)";
+      rethrow;
     }
   }
 }
