@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:neosurgetest/feature/home/data/model/plan_model.dart';
+import 'package:neosurgetest/feature/home/presentation/bloc/goal/goal_bloc.dart';
 import 'package:neosurgetest/feature/home/presentation/widget/plan_bottom_sheet.dart';
 import 'package:neosurgetest/utils/money_formatter.dart';
 
@@ -17,7 +19,11 @@ class PlanContainer extends StatelessWidget {
     final String formattedPlanCost = formatMoney(goal.targetAmount);
 
     return InkWell(
-      onTap: () async => await planBottomSheet(context, goal, balance),
+      onTap: () => showModalBottomSheet(
+          context: context,
+          builder: (_) => BlocProvider(
+              create: (_) => GoalBloc(),
+              child: PlanBottomSheet(goal: goal, balance: balance))),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),

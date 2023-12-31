@@ -26,7 +26,7 @@ class ExpenseModel extends Equatable {
     return ExpenseModel(
       txnName: map['txnName'] as String,
       isExpense: map['isExpense'] as bool,
-      txnAmount: map['txnAmount'] as double,
+      txnAmount: double.parse(map['txnAmount'].toString()),
       txnDate: DateTime.fromMillisecondsSinceEpoch(map['txnDate'] as int),
     );
   }

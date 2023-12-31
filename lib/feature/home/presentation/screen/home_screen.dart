@@ -152,15 +152,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          PlanContainer(
-                                            goal: GoalModel(
-                                              planName: _goals![index].planName,
-                                              targetDate:
-                                                  _goals![index].targetDate,
-                                              targetAmount:
-                                                  _goals![index].targetAmount,
+                                          BlocProvider(
+                                            create: (context) => GoalBloc(),
+                                            child: PlanContainer(
+                                              goal: GoalModel(
+                                                planName:
+                                                    _goals![index].planName,
+                                                targetDate:
+                                                    _goals![index].targetDate,
+                                                targetAmount:
+                                                    _goals![index].targetAmount,
+                                              ),
+                                              balance: _userData!.balance,
                                             ),
-                                            balance: _userData!.balance,
                                           ),
                                           const SizedBox(width: 8),
                                         ],

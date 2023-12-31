@@ -42,8 +42,8 @@ class DatabaseRepository {
           for (dynamic element in data['goals']) {
             goals.add(GoalModel.fromMap(element));
           }
-          expenses.sort((a, b) => a.txnDate.compareTo(b.txnDate));
-          goals.sort((a, b) => a.targetDate.compareTo(b.targetDate));
+          expenses.sort((a, b) => b.txnDate.compareTo(a.txnDate));
+          goals.sort((a, b) => b.targetDate.compareTo(a.targetDate));
 
           return DashboardModel(
             user: MyUserModel.fromMap(data),
@@ -63,10 +63,10 @@ class DatabaseRepository {
     try {
       final DocumentSnapshot doc = await _userCollection.doc(uid).get();
       final dynamic data = doc.data();
-      double balance = double.parse(data['balance']);
+      double balance = double.parse(data['balance'].toString());
       expense.isExpense
           ? balance -= expense.txnAmount
-          : balance -= expense.txnAmount;
+          : balance += expense.txnAmount;
 
       return await _userCollection.doc(uid).update({
         'balance': balance,
@@ -104,10 +104,10 @@ class DatabaseRepository {
     try {
       final DocumentSnapshot doc = await _userCollection.doc(uid).get();
       final dynamic data = doc.data();
-      double balance = double.parse(data['balance']);
+      double balance = double.parse(data['balance'].toString());
       expense.isExpense
           ? balance -= expense.txnAmount
-          : balance -= expense.txnAmount;
+          : balance += expense.txnAmount;
 
       return await _userCollection.doc(uid).update({
         'balance': balance,
@@ -146,7 +146,7 @@ class DatabaseRepository {
     try {
       final DocumentSnapshot doc = await _userCollection.doc(uid).get();
       final dynamic data = doc.data();
-      double balance = double.parse(data['balance']);
+      double balance = double.parse(data['balance'].toString());
       oldExpense.isExpense
           ? balance += oldExpense.txnAmount
           : balance -= oldExpense.txnAmount;

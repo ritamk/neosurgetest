@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:neosurgetest/feature/home/data/model/plan_model.dart';
+import 'package:neosurgetest/feature/home/presentation/bloc/goal/goal_bloc.dart';
 import 'package:neosurgetest/utils/snackbar.dart';
 import 'package:neosurgetest/utils/text_widget.dart';
 
@@ -20,6 +23,8 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
   final TextEditingController _amountController = TextEditingController();
 
   DateTime? _date;
+
+  bool _submitting = false;
 
   @override
   void initState() {
@@ -71,7 +76,7 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
                       validation: (val) {
                         if (val!.isEmpty) {
                           return "Please enter the amount";
-                        } else if (int.parse(val) <= 0) {
+                        } else if (double.parse(val) <= 0) {
                           return "Please enter a valid amount";
                         }
                         return null;
@@ -86,6 +91,7 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
 
                         final DateTime? date = await showDatePicker(
                           context: context,
+                          currentDate: widget.goal != null ? _date : null,
                           firstDate: now.add(const Duration(days: 1)),
                           lastDate: now.add(const Duration(days: 365)),
                         );
@@ -121,46 +127,88 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-        child: InkWell(
-          onTap: () {
-            if (_formKey.currentState!.validate()) {
-              if (_date != null) {
-              } else {
-                customSnackbar(context,
-                    content: 'Please select the date', isError: true);
+      floatingActionButton: BlocListener<GoalBloc, GoalState>(
+        listener: (context, state) {
+          switch (state) {
+            case GoalSubmitting():
+              setState(() => _submitting = true);
+            case GoalSubmitError():
+              setState(() => _submitting = false);
+              customSnackbar(context,
+                  content:
+                      'Could not ${widget.goal != null ? 'edit' : 'add'} goal',
+                  isError: true);
+            case GoalSubmitSuccess():
+              setState(() => _submitting = false);
+              customSnackbar(context,
+                  content: 'Goal ${widget.goal != null ? 'edited' : 'added'}',
+                  isError: false);
+              Navigator.pop(context);
+            default:
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: InkWell(
+            onTap: () {
+              if (_formKey.currentState!.validate()) {
+                if (_date != null) {
+                  context.read<GoalBloc>().add(widget.goal != null
+                      ? EditingGoal(
+                          oldGoalModel: widget.goal!,
+                          newGoalModel: GoalModel(
+                            planName: _nameController.text.trim(),
+                            targetDate: _date!,
+                            targetAmount:
+                                double.parse(_amountController.text.trim()),
+                          ),
+                        )
+                      : AddingGoal(
+                          goalModel: GoalModel(
+                            planName: _nameController.text.trim(),
+                            targetDate: _date!,
+                            targetAmount:
+                                double.parse(_amountController.text.trim()),
+                          ),
+                        ));
+                } else {
+                  customSnackbar(context,
+                      content: 'Please select the date', isError: true);
+                }
               }
-            }
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              color: Colors.green.shade700,
-              boxShadow: [
-                BoxShadow(
-                    spreadRadius: 1,
-                    blurRadius: 8,
-                    color: Colors.black.withOpacity(0.2))
-              ],
-            ),
-            height: 50,
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.check,
-                  color: Colors.white,
-                ),
-                SizedBox(width: 12),
-                Text(
-                  'Submit',
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                color: Colors.green.shade700,
+                boxShadow: [
+                  BoxShadow(
+                      spreadRadius: 1,
+                      blurRadius: 8,
+                      color: Colors.black.withOpacity(0.2))
+                ],
+              ),
+              height: 50,
+              child: !_submitting
+                  ? const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.check,
+                          color: Colors.white,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Add',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    )
+                  : const Center(
+                      child: CupertinoActivityIndicator(color: Colors.white)),
             ),
           ),
         ),

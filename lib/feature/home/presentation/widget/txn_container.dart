@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:neosurgetest/feature/home/data/model/expense_model.dart';
+import 'package:neosurgetest/feature/home/presentation/bloc/expense/expense_bloc.dart';
 import 'package:neosurgetest/feature/home/presentation/widget/txn_bottom_sheet.dart';
 import 'package:neosurgetest/utils/money_formatter.dart';
 
@@ -17,7 +19,12 @@ class TxnContainer extends StatelessWidget {
     final String formattedTxnCost = formatMoney(expense.txnAmount);
 
     return InkWell(
-      onTap: () async => await txnBottomSheet(context, expense),
+      onTap: () => showModalBottomSheet(
+          context: context,
+          builder: (ctx) => BlocProvider(
+                create: (context) => ExpenseBloc(),
+                child: TxnBottomSheet(expense: expense),
+              )),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),

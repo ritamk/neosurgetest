@@ -18,7 +18,7 @@ class MyUserModel extends Equatable {
       'name': name,
       'uid': uid,
       'email': email,
-      'balance': balance,
+      'balance': balance.toDouble(),
     };
   }
 
@@ -27,7 +27,7 @@ class MyUserModel extends Equatable {
       name: map['name'] as String,
       uid: map['uid'] as String,
       email: map['email'] as String,
-      balance: map['balance'] as double,
+      balance: double.parse(map['balance'].toString()),
     );
   }
 

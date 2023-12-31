@@ -23,7 +23,7 @@ class GoalModel extends Equatable {
     return GoalModel(
       planName: map['planName'] as String,
       targetDate: DateTime.fromMillisecondsSinceEpoch(map['targetDate'] as int),
-      targetAmount: map['targetAmount'] as double,
+      targetAmount: double.parse(map['targetAmount'].toString()),
     );
   }
 

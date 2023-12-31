@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:neosurgetest/feature/home/data/model/expense_model.dart';
+import 'package:neosurgetest/feature/home/presentation/bloc/expense/expense_bloc.dart';
 import 'package:neosurgetest/utils/snackbar.dart';
 import 'package:neosurgetest/utils/text_widget.dart';
 
@@ -22,7 +25,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   DateTime? _date;
 
-  bool isExpense = true;
+  bool _isExpense = true;
+
+  bool _submitting = false;
 
   @override
   void initState() {
@@ -30,7 +35,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       _nameController.text = widget.expense!.txnName;
       _amountController.text = widget.expense!.txnAmount.toString();
       _date = widget.expense!.txnDate;
-      isExpense = widget.expense!.isExpense;
+      _isExpense = widget.expense!.isExpense;
     }
     super.initState();
   }
@@ -51,11 +56,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             indicatorSize: TabBarIndicatorSize.tab,
             indicator: BoxDecoration(
               borderRadius: BorderRadius.circular(12), // Creates border
-              color: isExpense ? Colors.red.shade700 : Colors.green.shade700,
+              color: _isExpense ? Colors.red.shade700 : Colors.green.shade700,
             ),
             splashFactory: NoSplash.splashFactory,
             onTap: (value) {
-              setState(() => isExpense = value == 0);
+              setState(() => _isExpense = value == 0);
             },
             labelColor: Colors.white,
             labelStyle: TextStyle(
@@ -101,7 +106,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                         validation: (val) {
                           if (val!.isEmpty) {
                             return "Please enter the amount";
-                          } else if (int.parse(val) <= 0) {
+                          } else if (double.parse(val) <= 0) {
                             return "Please enter a valid amount";
                           }
                           return null;
@@ -116,6 +121,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
                           final DateTime? date = await showDatePicker(
                             context: context,
+                            currentDate: widget.expense != null ? _date : null,
                             firstDate: now.subtract(const Duration(days: 30)),
                             lastDate: now,
                           );
@@ -151,46 +157,94 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           ],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: InkWell(
-            onTap: () {
-              if (_formKey.currentState!.validate()) {
-                if (_date != null) {
-                } else {
-                  customSnackbar(context,
-                      content: 'Please select the date', isError: true);
+        floatingActionButton: BlocListener<ExpenseBloc, ExpenseState>(
+          listener: (context, state) {
+            switch (state) {
+              case ExpenseSubmitting():
+                setState(() => _submitting = true);
+              case ExpenseSubmitError():
+                setState(() => _submitting = false);
+                customSnackbar(context,
+                    content:
+                        'Could not ${widget.expense != null ? 'edit' : 'add'} transation',
+                    isError: true);
+              case ExpenseSubmitSuccess():
+                setState(() => _submitting = false);
+                customSnackbar(context,
+                    content:
+                        'Transaction ${widget.expense != null ? 'edited' : 'added'}',
+                    isError: false);
+                Navigator.pop(context);
+              default:
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            child: InkWell(
+              onTap: () {
+                if (_formKey.currentState!.validate()) {
+                  if (_date != null) {
+                    context.read<ExpenseBloc>().add(widget.expense != null
+                        ? EditingExpense(
+                            oldExpenseModel: widget.expense!,
+                            newExpenseModel: ExpenseModel(
+                              txnName: _nameController.text.trim(),
+                              txnDate: _date!,
+                              txnAmount:
+                                  double.parse(_amountController.text.trim()),
+                              isExpense: _isExpense,
+                            ),
+                          )
+                        : AddingExpense(
+                            expenseModel: ExpenseModel(
+                              txnName: _nameController.text.trim(),
+                              txnDate: _date!,
+                              txnAmount:
+                                  double.parse(_amountController.text.trim()),
+                              isExpense: _isExpense,
+                            ),
+                          ));
+                  } else {
+                    customSnackbar(context,
+                        content: 'Please select the date', isError: true);
+                  }
                 }
-              }
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  color:
-                      isExpense ? Colors.red.shade700 : Colors.green.shade700,
-                  boxShadow: [
-                    BoxShadow(
-                        spreadRadius: 1,
-                        blurRadius: 8,
-                        color: Colors.black.withOpacity(0.2))
-                  ]),
-              height: 50,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    isExpense ? Icons.remove_rounded : Icons.add_rounded,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Submit',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    color: _isExpense
+                        ? Colors.red.shade700
+                        : Colors.green.shade700,
+                    boxShadow: [
+                      BoxShadow(
+                          spreadRadius: 1,
+                          blurRadius: 8,
+                          color: Colors.black.withOpacity(0.2))
+                    ]),
+                height: 50,
+                child: !_submitting
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _isExpense
+                                ? Icons.remove_rounded
+                                : Icons.add_rounded,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Add',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      )
+                    : const Center(
+                        child: CupertinoActivityIndicator(color: Colors.white)),
               ),
             ),
           ),
