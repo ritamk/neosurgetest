@@ -16,9 +16,9 @@ class AuthStateWrapper extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
           LocalSharedPref.setUid(snapshot.data.uid);
-          return const SignUpScreen();
-        } else {
           return const HomeScreen();
+        } else {
+          return const SignUpScreen();
         }
       },
     );
