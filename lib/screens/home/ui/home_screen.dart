@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:neosurgetest/models/expense_model.dart';
+import 'package:neosurgetest/models/plan_model.dart';
 import 'package:neosurgetest/screens/auth/ui/sign_in_screen.dart';
 import 'package:neosurgetest/screens/home/ui/add_expense.dart';
 import 'package:neosurgetest/screens/home/ui/add_plan.dart';
@@ -106,15 +108,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   scrollDirection: Axis.horizontal,
                   itemCount: 3,
                   itemBuilder: (context, index) {
-                    return const Row(
+                    return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         PlanContainer(
-                          planName: 'Car',
-                          planCost: 120000,
-                          planIcon: Icon(CupertinoIcons.car),
+                          goal: GoalModel(
+                            planName: 'Car',
+                            targetDate: DateTime(DateTime.now().year + 1),
+                            targetAmount: 40000,
+                          ),
+                          balance: 120000,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                       ],
                     );
                   },
@@ -142,10 +147,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TxnContainer(
-                        txnName: 'Ride',
-                        txnCost: 120,
-                        txnTime: DateTime.now(),
-                        isExpense: true,
+                        expense: ExpenseModel(
+                          txnName: 'Ride',
+                          isExpense: true,
+                          txnAmount: 12,
+                          txnDate: DateTime.now(),
+                        ),
                       ),
                       const SizedBox(height: 8),
                     ],
