@@ -47,10 +47,7 @@ Future<void> planBottomSheet(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                icon: const Icon(
-                  Icons.delete_forever_rounded,
-                  color: Colors.red,
-                ),
+                icon: const Icon(Icons.delete_forever_rounded),
                 visualDensity: VisualDensity.compact,
               ),
             ],

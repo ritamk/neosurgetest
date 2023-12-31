@@ -35,10 +35,7 @@ Future<void> txnBottomSheet(BuildContext context, ExpenseModel expense) async {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                icon: const Icon(
-                  Icons.delete_forever_rounded,
-                  color: Colors.red,
-                ),
+                icon: const Icon(Icons.delete_forever_rounded),
                 visualDensity: VisualDensity.compact,
               ),
             ],
